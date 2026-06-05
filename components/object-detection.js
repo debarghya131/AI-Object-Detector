@@ -281,12 +281,12 @@ const ObjectDetection = () => {
 
       <div className="grid gap-3 sm:gap-4 lg:grid-cols-[minmax(0,1fr)_18rem]">
         <div className="overflow-hidden rounded-md border border-white/10 bg-zinc-950 shadow-2xl shadow-black/40">
-          <div className="relative aspect-video w-full">
+          <div className="relative aspect-[4/3] w-full sm:aspect-video">
             {isCameraOn ? (
               <>
                 <Webcam
                   ref={webcamRef}
-                  className="absolute inset-0 h-full w-full object-cover"
+                  className="absolute inset-0 h-full w-full object-contain"
                   videoConstraints={detectionProfile.videoConstraints}
                   onUserMedia={syncCanvasSize}
                   onUserMediaError={() => {
@@ -297,7 +297,7 @@ const ObjectDetection = () => {
                 />
                 <canvas
                   ref={canvasRef}
-                  className="absolute inset-0 z-10 h-full w-full object-cover"
+                  className="absolute inset-0 z-10 h-full w-full object-contain"
                 />
               </>
             ) : (

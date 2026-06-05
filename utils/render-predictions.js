@@ -12,24 +12,33 @@ export const renderPredictions = (predictions, ctx) => {
 
   predictions.forEach((prediction) => {
     const [x, y, width, height] = prediction["bbox"];
+    const lineWidth = 4;
+    const inset = lineWidth / 2;
+    const boxX = clamp(x, inset, ctx.canvas.width - inset);
+    const boxY = clamp(y, inset, ctx.canvas.height - inset);
+    const boxWidth = clamp(width, 0, ctx.canvas.width - boxX - inset);
+    const boxHeight = clamp(height, 0, ctx.canvas.height - boxY - inset);
     const confidence = Math.round(prediction.score * 100);
     const label = `${prediction.class} ${confidence}%`;
     const color = getPredictionColor(prediction.class);
 
     ctx.strokeStyle = color;
-    ctx.lineWidth = 4;
-    ctx.strokeRect(x, y, width, height);
+    ctx.lineWidth = lineWidth;
+    ctx.strokeRect(boxX, boxY, boxWidth, boxHeight);
 
     ctx.fillStyle = hexToRgba(color, 0.14);
-    ctx.fillRect(x, y, width, height);
+    ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
 
     ctx.fillStyle = color;
     const textWidth = ctx.measureText(label).width;
     const textHeight = parseInt(font, 10);
     const labelWidth = textWidth + 8;
     const labelHeight = textHeight + 6;
-    const labelX = Math.max(0, Math.min(x, ctx.canvas.width - labelWidth));
-    const labelY = y > labelHeight ? y - labelHeight : y + 4;
+    const labelX = clamp(boxX, 0, ctx.canvas.width - labelWidth);
+    const labelY =
+      boxY > labelHeight
+        ? boxY - labelHeight
+        : clamp(boxY + 4, 0, ctx.canvas.height - labelHeight);
 
     ctx.fillRect(labelX, labelY, labelWidth, labelHeight);
 
@@ -53,3 +62,6 @@ const hexToRgba = (hex, alpha) => {
 
   return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
 };
+
+const clamp = (value, min, max) =>
+  Math.min(Math.max(value, min), Math.max(min, max));
