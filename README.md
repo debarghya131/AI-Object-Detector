@@ -19,6 +19,7 @@ The goal of this project is to make real-time AI vision easy to access from a no
 - Top prediction list with progress bars
 - Responsive UI for desktop, tablet, and mobile
 - iPhone-friendly layout
+- Automatic mobile performance mode
 - WebGL TensorFlow backend with CPU fallback
 - Camera start/stop control
 - No database or backend required
@@ -60,7 +61,7 @@ flowchart TD
     C --> D{Permission granted?}
     D -- No --> E[Show camera error]
     D -- Yes --> F[Initialize TensorFlow.js backend]
-    F --> G[Load COCO-SSD MobileNet v2 model]
+    F --> G[Load COCO-SSD model profile]
     G --> H[Read webcam frame]
     H --> I[Run object detection]
     I --> J[Render bounding boxes on canvas]
@@ -221,7 +222,8 @@ npm run build
 
 ## ⚡ Optimization
 
-- Uses COCO-SSD with MobileNet v2 for better classification accuracy
+- Uses COCO-SSD with MobileNet v2 for desktop accuracy
+- Uses lightweight COCO-SSD mode on mobile for smoother performance
 - Prevents overlapping detection calls
 - Uses WebGL acceleration when available
 - Limits detection loop frequency

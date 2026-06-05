@@ -6,16 +6,31 @@ import {load as cocoSSDLoad} from "@tensorflow-models/coco-ssd";
 import * as tf from "@tensorflow/tfjs";
 import {renderPredictions} from "@/utils/render-predictions";
 
-const DETECTION_CONFIDENCE = 0.5;
-const MAX_DETECTIONS = 50;
-const DETECTION_INTERVAL = 200;
-const MODEL_CONFIG = {
-  base: "mobilenet_v2",
-};
-const VIDEO_CONSTRAINTS = {
-  width: {ideal: 1280},
-  height: {ideal: 720},
-  facingMode: {ideal: "environment"},
+const DETECTION_PROFILES = {
+  desktop: {
+    label: "Accuracy",
+    modelBase: "mobilenet_v2",
+    confidence: 0.5,
+    maxDetections: 50,
+    interval: 220,
+    videoConstraints: {
+      width: {ideal: 1280},
+      height: {ideal: 720},
+      facingMode: {ideal: "environment"},
+    },
+  },
+  mobile: {
+    label: "Mobile",
+    modelBase: "lite_mobilenet_v2",
+    confidence: 0.55,
+    maxDetections: 20,
+    interval: 550,
+    videoConstraints: {
+      width: {ideal: 640},
+      height: {ideal: 480},
+      facingMode: {ideal: "environment"},
+    },
+  },
 };
 
 const initializeTensorflowBackend = async () => {
@@ -29,17 +44,33 @@ const initializeTensorflowBackend = async () => {
   return tf.getBackend();
 };
 
+const getDetectionProfile = () => {
+  if (typeof window === "undefined") {
+    return DETECTION_PROFILES.desktop;
+  }
+
+  const isSmallScreen = window.matchMedia("(max-width: 767px)").matches;
+  const hasLimitedCores =
+    typeof navigator !== "undefined" && navigator.hardwareConcurrency <= 4;
+
+  return isSmallScreen || hasLimitedCores
+    ? DETECTION_PROFILES.mobile
+    : DETECTION_PROFILES.desktop;
+};
+
 const ObjectDetection = () => {
   const [isCameraOn, setIsCameraOn] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [predictions, setPredictions] = useState([]);
   const [backend, setBackend] = useState("");
   const [error, setError] = useState("");
+  const [detectionProfile, setDetectionProfile] = useState(
+    DETECTION_PROFILES.desktop
+  );
 
   const webcamRef = useRef(null);
   const canvasRef = useRef(null);
-  const modelRef = useRef(null);
-  const modelPromiseRef = useRef(null);
+  const modelCacheRef = useRef({});
   const detectIntervalRef = useRef(null);
   const isDetectingRef = useRef(false);
 
@@ -89,53 +120,55 @@ const ObjectDetection = () => {
     }
   }, []);
 
-  const runObjectDetection = useCallback(async (net) => {
-    if (!net || isDetectingRef.current) {
-      return;
-    }
-
-    if (
-      canvasRef.current &&
-      webcamRef.current !== null &&
-      webcamRef.current.video?.readyState === 4
-    ) {
-      isDetectingRef.current = true;
-
-      try {
-        syncCanvasSize();
-
-        const detectedObjects = await net.detect(
-          webcamRef.current.video,
-          MAX_DETECTIONS,
-          DETECTION_CONFIDENCE
-        );
-
-        const context = canvasRef.current.getContext("2d");
-        renderPredictions(detectedObjects, context);
-        setPredictions(detectedObjects);
-      } catch {
-        setError("Detection paused. Please restart the camera.");
-      } finally {
-        isDetectingRef.current = false;
+  const runObjectDetection = useCallback(
+    async (net) => {
+      if (!net || isDetectingRef.current) {
+        return;
       }
-    }
-  }, [syncCanvasSize]);
 
-  const loadModel = useCallback(async () => {
-    if (!modelPromiseRef.current) {
-      modelPromiseRef.current = initializeTensorflowBackend()
+      if (
+        canvasRef.current &&
+        webcamRef.current !== null &&
+        webcamRef.current.video?.readyState === 4
+      ) {
+        isDetectingRef.current = true;
+
+        try {
+          syncCanvasSize();
+
+          const detectedObjects = await net.detect(
+            webcamRef.current.video,
+            detectionProfile.maxDetections,
+            detectionProfile.confidence
+          );
+
+          const context = canvasRef.current.getContext("2d");
+          renderPredictions(detectedObjects, context);
+          setPredictions(detectedObjects);
+        } catch {
+          setError("Detection paused. Please restart the camera.");
+        } finally {
+          isDetectingRef.current = false;
+        }
+      }
+    },
+    [detectionProfile.confidence, detectionProfile.maxDetections, syncCanvasSize]
+  );
+
+  const loadModel = useCallback(async (profile) => {
+    if (!modelCacheRef.current[profile.modelBase]) {
+      modelCacheRef.current[profile.modelBase] = initializeTensorflowBackend()
         .then((activeBackend) => {
           setBackend(activeBackend);
-          return cocoSSDLoad(MODEL_CONFIG);
+          return cocoSSDLoad({base: profile.modelBase});
         })
         .catch((loadError) => {
-          modelPromiseRef.current = null;
+          delete modelCacheRef.current[profile.modelBase];
           throw loadError;
         });
     }
 
-    modelRef.current = await modelPromiseRef.current;
-    return modelRef.current;
+    return modelCacheRef.current[profile.modelBase];
   }, []);
 
   const toggleCamera = useCallback(() => {
@@ -146,6 +179,8 @@ const ObjectDetection = () => {
       return;
     }
 
+    const nextProfile = getDetectionProfile();
+    setDetectionProfile(nextProfile);
     setError("");
     setIsLoading(true);
     setIsCameraOn(true);
@@ -162,7 +197,7 @@ const ObjectDetection = () => {
 
     const startDetection = async () => {
       try {
-        const model = await loadModel();
+        const model = await loadModel(detectionProfile);
 
         if (!isMounted) {
           return;
@@ -173,7 +208,7 @@ const ObjectDetection = () => {
 
         detectIntervalRef.current = setInterval(() => {
           runObjectDetection(model);
-        }, DETECTION_INTERVAL);
+        }, detectionProfile.interval);
       } catch {
         if (isMounted) {
           setError("Could not start the detector. Check permissions and try again.");
@@ -192,6 +227,7 @@ const ObjectDetection = () => {
     };
   }, [
     clearDetectionFrame,
+    detectionProfile,
     isCameraOn,
     loadModel,
     runObjectDetection,
@@ -200,13 +236,14 @@ const ObjectDetection = () => {
   ]);
 
   const detectorStatus = isLoading ? "Loading" : isCameraOn ? "Scanning" : "Idle";
+  const confidencePercent = Math.round(detectionProfile.confidence * 100);
 
   return (
     <section className="w-full">
       <div className="mb-3 flex flex-col gap-3 rounded-md border border-white/10 bg-white/[0.04] px-3 py-3 shadow-2xl shadow-black/30 backdrop-blur sm:mb-4 sm:flex-row sm:items-center sm:justify-between sm:px-4">
         <div>
           <p className="text-xs font-semibold uppercase text-cyan-200">
-            TensorFlow {backend || "ready"}
+            TensorFlow {backend || "ready"} / {detectionProfile.label}
           </p>
           <p className="text-sm text-white/65">
             {predictions.length} objects in frame
@@ -250,7 +287,7 @@ const ObjectDetection = () => {
                 <Webcam
                   ref={webcamRef}
                   className="absolute inset-0 h-full w-full object-cover"
-                  videoConstraints={VIDEO_CONSTRAINTS}
+                  videoConstraints={detectionProfile.videoConstraints}
                   onUserMedia={syncCanvasSize}
                   onUserMediaError={() => {
                     setError("Camera permission is blocked or unavailable.");
@@ -282,7 +319,7 @@ const ObjectDetection = () => {
             <div>
               <h2 className="text-base font-semibold text-white">Live Objects</h2>
               <p className="text-xs text-white/55">
-                Confidence {DETECTION_CONFIDENCE * 100}%+
+                Confidence {confidencePercent}%+
               </p>
             </div>
             <span className="text-3xl font-black text-cyan-300">
