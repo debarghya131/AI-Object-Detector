@@ -1,26 +1,53 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --foreground-rgb: 245, 247, 250;
+  --background-start-rgb: 3, 7, 18;
+  --background-end-rgb: 10, 10, 12;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --foreground-rgb: 245, 247, 250;
+    --background-start-rgb: 3, 7, 18;
+    --background-end-rgb: 10, 10, 12;
   }
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  color: rgb(var(--foreground-rgb));
+  background:
+    linear-gradient(135deg, rgba(34, 197, 94, 0.16), transparent 30%),
+    linear-gradient(225deg, rgba(6, 182, 212, 0.14), transparent 34%),
+    linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+    linear-gradient(
+      to bottom,
+      rgb(var(--background-start-rgb)),
+      rgb(var(--background-end-rgb))
+    );
+  background-attachment: fixed;
+  background-size: auto, auto, 44px 44px, 44px 44px, auto;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .gradient {
+    background-image: linear-gradient(to bottom, #f8fafc, #67e8f9, #22c55e);
+  }
+
+  .gradient-title {
+    background-image: linear-gradient(to bottom, #ffffff, #a7f3d0, #67e8f9);
+    background-clip: text;
+    color: transparent;
+  }
+
+  .gradient-text {
+    background-image: linear-gradient(to bottom, #ffffff, #a7f3d0, #67e8f9);
+    background-clip: text;
+    color: transparent;
+  }
 }

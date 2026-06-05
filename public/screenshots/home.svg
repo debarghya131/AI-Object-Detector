@@ -1,0 +1,40 @@
+<svg width="1200" height="720" viewBox="0 0 1200 720" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="720" fill="#030712"/>
+  <path d="M0 0h1200v720H0z" fill="url(#bg)"/>
+  <path d="M0 0h1200v720H0z" fill="url(#grid)" opacity="0.35"/>
+  <rect x="92" y="76" width="1016" height="568" rx="18" fill="#ffffff" fill-opacity="0.045" stroke="#ffffff" stroke-opacity="0.12"/>
+  <text x="118" y="130" fill="#86efac" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="700" letter-spacing="3">BROWSER AI VISION</text>
+  <text x="118" y="188" fill="#ffffff" font-family="Inter, Arial, sans-serif" font-size="56" font-weight="900">Object Detector</text>
+  <rect x="118" y="214" width="126" height="8" rx="4" fill="url(#accent)"/>
+  <rect x="118" y="272" width="646" height="364" rx="12" fill="#020617" stroke="#ffffff" stroke-opacity="0.12"/>
+  <rect x="154" y="308" width="574" height="292" rx="8" fill="url(#screen)"/>
+  <text x="386" y="462" text-anchor="middle" fill="#cbd5e1" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="600">Camera is off</text>
+  <rect x="798" y="272" width="274" height="364" rx="12" fill="#ffffff" fill-opacity="0.055" stroke="#ffffff" stroke-opacity="0.12"/>
+  <text x="826" y="324" fill="#ffffff" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="800">Live Objects</text>
+  <text x="826" y="356" fill="#94a3b8" font-family="Inter, Arial, sans-serif" font-size="16">Confidence 50%+</text>
+  <text x="1018" y="354" text-anchor="middle" fill="#67e8f9" font-family="Inter, Arial, sans-serif" font-size="54" font-weight="900">0</text>
+  <rect x="826" y="406" width="218" height="1" fill="#ffffff" fill-opacity="0.12"/>
+  <text x="935" y="470" text-anchor="middle" fill="#94a3b8" font-family="Inter, Arial, sans-serif" font-size="18">No objects detected</text>
+  <rect x="826" y="552" width="218" height="1" fill="#ffffff" fill-opacity="0.12"/>
+  <text x="826" y="594" fill="#cbd5e1" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="700">Top Matches</text>
+  <text x="826" y="626" fill="#94a3b8" font-family="Inter, Arial, sans-serif" font-size="16">Waiting for a frame</text>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="720" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#064e3b" stop-opacity="0.65"/>
+      <stop offset="0.42" stop-color="#020617"/>
+      <stop offset="1" stop-color="#083344" stop-opacity="0.65"/>
+    </linearGradient>
+    <pattern id="grid" width="44" height="44" patternUnits="userSpaceOnUse">
+      <path d="M44 0H0v44" stroke="#ffffff" stroke-opacity="0.16"/>
+    </pattern>
+    <linearGradient id="accent" x1="118" y1="218" x2="244" y2="218" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#86efac"/>
+      <stop offset="0.5" stop-color="#67e8f9"/>
+      <stop offset="1" stop-color="#67e8f9" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="screen" x1="154" y1="308" x2="728" y2="600" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#111827"/>
+      <stop offset="1" stop-color="#020617"/>
+    </linearGradient>
+  </defs>
+</svg>
