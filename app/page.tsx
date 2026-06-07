@@ -1,4 +1,5 @@
 import ObjectDetection from "@/components/object-detection";
+import ViewCounter from "@/components/view-counter";
 
 export default function Home() {
   return (
@@ -6,9 +7,12 @@ export default function Home() {
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 sm:gap-5">
         <header className="flex flex-col justify-between gap-4 border-b border-white/10 pb-4 sm:pb-5 md:flex-row md:items-end">
           <div>
-            <p className="inline-flex rounded-full border border-emerald-300/30 bg-emerald-300/10 px-3 py-1 text-[0.68rem] font-bold uppercase tracking-[0.18em] text-emerald-200 sm:text-xs sm:tracking-[0.22em]">
-              Browser AI Vision
-            </p>
+            <div className="flex flex-wrap items-center gap-2">
+              <p className="inline-flex rounded-full border border-emerald-300/30 bg-emerald-300/10 px-3 py-1 text-[0.68rem] font-bold uppercase tracking-[0.18em] text-emerald-200 sm:text-xs sm:tracking-[0.22em]">
+                Browser AI Vision
+              </p>
+              <ViewCounter />
+            </div>
             <h1 className="gradient-title mt-2 text-3xl font-black tracking-wide sm:mt-3 md:text-4xl lg:text-5xl">
               Object Detector
             </h1>
